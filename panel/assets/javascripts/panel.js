@@ -1,4 +1,3 @@
-
 function Console() { }
 Console.Type = {
     LOG: "log",
@@ -11,24 +10,21 @@ Console.Type = {
     GROUP_END: "groupEnd"
 };
 
-Console.addMessage = function (type, obj) {
+Console.addMessage = function (type, format, args) {
     chrome.runtime.sendMessage({
         command: "sendToConsole",
         tabId: chrome.devtools.inspectedWindow.tabId,
-        args: {
-            obj: obj,
-            type: type
-        }
+        args: arguments
     });
 };
 
 chrome.devtools.network.onRequestFinished.addListener(function (request) {
+    // do not show requests to chrome extension resources
     if (request.request.url.startsWith("chrome-extension://")) {
         return;
     }
-    Console.addMessage(Console.Type.INFO, request);
+    Console.addMessage(null, null, request);
 });
-
 //onload
 document.addEventListener('DOMContentLoaded', function () {
 
@@ -42,5 +38,7 @@ document.addEventListener('DOMContentLoaded', function () {
             $dom('p').text('This is the panel content.')
         )
     );
+
+
 
 });
