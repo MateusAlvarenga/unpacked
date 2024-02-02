@@ -11,19 +11,36 @@ Console.Type = {
     GROUP_END: "groupEnd"
 };
 
-Console.addMessage = function (type, format, args) {
+Console.addMessage = function (type, obj) {
     chrome.runtime.sendMessage({
         command: "sendToConsole",
         tabId: chrome.devtools.inspectedWindow.tabId,
-        args: arguments
+        args: {
+            obj: obj,
+            type: type
+        }
     });
 };
 
 chrome.devtools.network.onRequestFinished.addListener(function (request) {
-    // do not show requests to chrome extension resources
     if (request.request.url.startsWith("chrome-extension://")) {
         return;
     }
-    Console.addMessage(null, null, request);
-    $scope.handleSAMLHeaders(request);
+    Console.addMessage(Console.Type.INFO, request);
+});
+
+//onload
+document.addEventListener('DOMContentLoaded', function () {
+
+    const app = gI('app');
+
+    $dom(app).append(
+        $dom('div').addClass('header').append(
+            $dom('h1').text('Panel')
+        ),
+        $dom('div').addClass('content').append(
+            $dom('p').text('This is the panel content.')
+        )
+    );
+
 });
