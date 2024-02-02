@@ -1,0 +1,42 @@
+{
+  "name": "RS viewer",
+  "version": "1.0",
+  "minimum_chrome_version": "88.0",
+  "description": "Extends the Developer Tools, adding a window to view and resend requests made by the page",
+  "devtools_page": "devtools.html",
+  "icons": {
+    "128": "panel/assets/images/icon.png"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "permissions": [
+    "scripting",
+    "activeTab"
+  ],
+  "host_permissions": [
+    "*://*/*"
+  ],
+  "manifest_version": 3,
+  "content_scripts": [
+    {
+      "js": [
+        "panel/assets/javascripts/sameTab.js"
+      ],
+      "matches": [
+        "*://*/*"
+      ],
+      "run_at": "document_start"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "panel/assets/javascripts/sameTab.js"
+      ],
+      "matches": [
+        "*://*/*"
+      ]
+    }
+  ]
+}
