@@ -47,12 +47,6 @@ document.addEventListener('DOMContentLoaded', function () {
     div_panel.append(div_inspector);
     app.append(div_panel);
 
-    //init list
-    const mainForm = document.querySelector('#mainForm');
-    createAndPopulateList('formList', mainForm);
-    const searchInput = document.querySelector('#search');
-    searchInput.addEventListener('keyup', filterDataWithFluentDom);
-
 });
 
 function searchPanel() {
@@ -121,8 +115,44 @@ function inpect(request, inspector, elements) {
     $dom(elements.textarea_request).text(beatify_json(request.request.postData) || "");
     $dom(elements.textarea_response).text(beatify_json(request.response.content.text) || "");
 
-    elements.button_send.addEventListener('click', () => {
-        console.log("clicked");
+    elements.button_send.addEventListener('click', async () => {
+
+        const url = request.request.url;
+        const method = request.request.method;
+        const body = request.request.postData;
+        const cookies = request.request.cookies;
+
+        const cookieString = cookies.map(cookie => `${cookie.name}=${cookie.value}`).join('; ');
+
+        const headers = request.request.headers.reduce((acc, cur) => {
+            if (/^[a-z0-9!#$%&'*+.^_`|~-]+$/i.test(cur.name)) {
+                acc[cur.name] = cur.value;
+            } else {
+                console.warn(`Invalid header name: ${cur.name}`);
+            }
+            return acc;
+        }, {});
+
+        headers['Cookie'] = cookieString;
+
+        const options = {
+            method,
+            headers,
+            body,
+            credentials: 'include' // or 'same-origin'  or 'omit'
+        }
+
+        try {
+            const response = await fetch(url, options);
+            const response_body = await response.text();
+            console.log(response_body);
+        } catch (error) {
+            console.error(`Failed to fetch: ${error.message}`);
+        }
+
+
+        $dom(elements.textarea_response).text(beatify_json(response_body) || "");
+
     });
 }
 

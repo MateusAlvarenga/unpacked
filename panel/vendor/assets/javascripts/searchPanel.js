@@ -32,14 +32,3 @@ function filterDataWithFluentDom(event) {
         }
     });
 }
-
-// Initialize the list and setup event listeners once the DOM is fully loaded
-document.addEventListener('DOMContentLoaded', function () {
-    const parentEl = document.querySelector('#mainForm'); // Adjust the selector as needed
-    createAndPopulateList('formList', parentEl);
-
-    const searchInput = document.querySelector('#search');
-    if (searchInput) {
-        searchInput.addEventListener('keyup', filterDataWithFluentDom);
-    }
-});
