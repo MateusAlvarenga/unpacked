@@ -42,15 +42,10 @@ document.addEventListener('DOMContentLoaded', function () {
     panel.append(inspector);
     app.append(panel);
 
-
-
     //init list
-    const mainForm = document.querySelector('#mainForm');
+    const mainForm = gI('mainForm');
     createAndPopulateList('formList', mainForm);
-    const searchInput = document.querySelector('#search');
-    if (searchInput) {
-        searchInput.addEventListener('keyup', filterDataWithFluentDom);
-    }
+    $dom(gI('search')).on('keyup', filterDataWithFluentDom);
 
 });
 

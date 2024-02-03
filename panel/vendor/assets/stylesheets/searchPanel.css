@@ -36,7 +36,7 @@ button {
 
 .main {
   display: grid;
-  place-items: center;
+  place-items: start;
   padding: var(--size-4);
 }
 
