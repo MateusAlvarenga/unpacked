@@ -69,6 +69,12 @@
             parent: function () {
                 return Fluent(this.element.parentElement);
             },
+            appendTo: function (parent) {
+                if (parent instanceof Element) {
+                    parent.appendChild(this.element);
+                }
+                return this;
+            }
         }
 
     }
