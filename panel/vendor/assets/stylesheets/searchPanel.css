@@ -66,6 +66,7 @@ button {
 
 .form__item:hover {
   background-color: var(--gray-3);
+  cursor: pointer;
 }
 
 .form__item_hidden {

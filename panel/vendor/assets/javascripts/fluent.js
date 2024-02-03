@@ -31,24 +31,34 @@
                 this.element.innerHTML = html;
                 return this;
             },
+            id: function (id) {
+                this.element.id = id;
+                return this;
+            },
             attr: function (name, value) {
                 this.element.setAttribute(name, value);
                 return this;
             },
-            addClass: function (className) {
-                this.element.classList.add(className);
+            addClass: function (...classNames) {
+                classNames.forEach(className => {
+                    this.element.classList.add(className);
+                });
                 return this;
             },
             removeClass: function (className) {
                 this.element.classList.remove(className);
                 return this;
             },
-            append: function (node) {
-                this.element.appendChild(node.element);
+            append: function (...nodes) {
+                nodes.forEach(node => {
+                    this.element.appendChild(node.element);
+                });
                 return this;
             },
-            prepend: function (node) {
-                this.element.insertBefore(node.element, this.element.firstChild);
+            prepend: function (...nodes) {
+                nodes.forEach(node => {
+                    this.element.insertBefore(node.element, this.element.firstChild);
+                });
                 return this;
             },
             val: function (value) {
@@ -72,6 +82,12 @@
             appendTo: function (parent) {
                 if (parent instanceof Element) {
                     parent.appendChild(this.element);
+                }
+                return this;
+            },
+            prependTo: function (parent) {
+                if (parent instanceof Element) {
+                    parent.insertBefore(this.element, parent.firstChild);
                 }
                 return this;
             }

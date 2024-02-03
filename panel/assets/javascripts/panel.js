@@ -10,6 +10,8 @@ Console.Type = {
     GROUP_END: "groupEnd"
 };
 
+var _inspect = null;
+
 Console.addMessage = function (type, format, obj) {
     chrome.runtime.sendMessage({
         command: "sendToConsole",
@@ -24,28 +26,32 @@ chrome.devtools.network.onRequestFinished.addListener(function (request) {
     }
     Console.addMessage(null, null, request);
 
-    addItem({ "name": request.request.url, "href": request.request.url });
+    addItem(request);
 });
 
 //onload
 document.addEventListener('DOMContentLoaded', function () {
 
     const app = $dom(gI('app'));
+    const [inspector_panel, inspect] = create_inspector();
+    _inspect = inspect;
     const search_panel = searchPanel();
 
-    const panel = $dom('div').addClass('panel');
-    const requests = $dom('div').addClass('requests');
-    const inspector = $dom('div').addClass('inspector');
+    const div_panel = $dom('div').addClass('panel');
+    const div_requests = $dom('div').addClass('requests');
+    const div_inspector = $dom('div').addClass('inspector');
 
-    requests.append(search_panel);
-    panel.append(requests);
-    panel.append(inspector);
-    app.append(panel);
+    div_requests.append(search_panel);
+    div_inspector.append(inspector_panel);
+    div_panel.append(div_requests);
+    div_panel.append(div_inspector);
+    app.append(div_panel);
 
     //init list
-    const mainForm = gI('mainForm');
+    const mainForm = document.querySelector('#mainForm');
     createAndPopulateList('formList', mainForm);
-    $dom(gI('search')).on('keyup', filterDataWithFluentDom);
+    const searchInput = document.querySelector('#search');
+    searchInput.addEventListener('keyup', filterDataWithFluentDom);
 
 });
 
@@ -58,7 +64,7 @@ function searchPanel() {
                 .addClass('page__main')
                 .append(
                     $dom('form')
-                        .attr('id', 'mainForm')
+                        .id('mainForm')
                         .addClass('form')
                         .addClass('main__form')
                         .attr('action', 'javascript:void(0);')
@@ -80,15 +86,96 @@ function searchPanel() {
                                 )
                                 .append(
                                     $dom('input')
+                                        .id('search')
                                         .addClass('search-box__input')
                                         .attr('type', 'text')
-                                        .attr('id', 'search')
                                         .attr('name', 'search')
                                         .attr('placeholder', 'Search for names..')
+                                        .on('keyup', filterDataWithFluentDom)
                                 )
+                        ).append(
+                            $dom('ul')
+                                .id('formList')
+                                .addClass('form__list')
+
                         )
                 )
         );
 
     return dom;
+}
+
+function inpect(request, inspector, elements) {
+    console.log(request);
+    console.log(inspector.element);
+    console.log(elements);
+
+
+    $dom(elements.select_method).val("");
+    $dom(elements.input_url).val("");
+    $dom(elements.textarea_request).text("");
+    $dom(elements.textarea_response).text("");
+
+    $dom(elements.select_method).val(request.request.method);
+    $dom(elements.input_url).val(request.request.url);
+    $dom(elements.textarea_request).text(beatify_json(request.request.postData) || "");
+    $dom(elements.textarea_response).text(beatify_json(request.response.content.text) || "");
+
+    elements.button_send.addEventListener('click', () => {
+        console.log("clicked");
+    });
+}
+
+
+function create_inspector(conf) {
+
+    const inspector = $dom('div').addClass('inspector');
+
+    inspector.append($dom('h2').text("Inspector"));
+
+    inspector
+        .append(
+            $dom("div")
+                .append($dom("lable").text("Method"))
+                .append($dom("select").id("method").append(
+                    $dom("option").val("GET").text("GET"),
+                    $dom("option").val("POST").text("POST"),
+                    $dom("option").val("PUT").text("PUT"),
+                    $dom("option").val("DELETE").text("DELETE"),
+                ))
+        )
+        .append(
+            $dom("div")
+                .append($dom("input").attr("type", "text").attr("placeholder", "url"))
+        )
+        .append(
+            $dom("div")
+                .append($dom("textarea").attr("placeholder", "request body").id("request_body"))
+        )
+        .append(
+            $dom("div")
+                .append($dom("textarea").attr("placeholder", "Response body").id("response_body"))
+        )
+        .append(
+            $dom("div")
+                .append($dom("button").text("Re-send"))
+        );
+
+
+    const elements = {
+        input_url: inspector.element.querySelector("input"),
+        textarea_request: inspector.element.querySelector("#request_body"),
+        textarea_response: inspector.element.querySelector("#response_body"),
+        select_method: inspector.element.querySelector("#method"),
+        button_send: inspector.element.querySelector("button")
+    }
+
+    return [
+        inspector,
+        (request) => { inpect(request, inspector, elements) }
+    ]
+}
+
+function beatify_json(json) {
+    return JSON.stringify(json, null, 4);
 }

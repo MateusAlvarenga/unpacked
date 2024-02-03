@@ -1,43 +1,20 @@
-// Define the persons array
-const persons = [
-    { name: "Adele", href: "#" },
-    { name: "Agnes", href: "#" },
-    { name: "Billy", href: "#" },
-    { name: "Bob", href: "#" },
-    { name: "Calvin", href: "#" },
-    { name: "Christina", href: "#" },
-    { name: "Cindy", href: "#" }
-];
-
-// Function to create the list and populate it with initial items
-function createAndPopulateList(listID, parentEl) {
-    let list = document.getElementById(listID);
-
-    if (!list) {
-        list = $dom('ul').attr('id', listID).addClass('form__list').element;
-        parentEl.appendChild(list);
-
-        persons.forEach(person => addItem(person, listID));
-    }
-}
-
 // Function to add an item to the list
-function addItem(item) {
+function addItem(request) {
     const list = document.getElementById('formList');
-    if (!list) {
-        console.error('List not found: ' + listID);
-        return;
-    }
+    const url = request.request.url;
+    const method = request.request.method;
 
     $dom('li')
         .addClass('form__item')
         .append(
             $dom('a')
                 .addClass('form__link')
-                .attr('href', item.href)
-                .text(item.name)
+                .text(`${method} :  ${url}`)
+                .on('click', function () {
+                    _inspect(request)
+                })
         )
-        .appendTo(list);
+        .prependTo(list);
 }
 
 // Function to filter the list items based on user input
