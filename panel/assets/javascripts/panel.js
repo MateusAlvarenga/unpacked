@@ -22,7 +22,9 @@ chrome.devtools.network.onRequestFinished.addListener(function (request) {
     if (request.request.url.startsWith("chrome-extension://")) {
         return;
     }
-    //Console.addMessage(null, null, request);
+    Console.addMessage(null, null, request);
+
+    addItem({ "name": request.request.url, "href": request.request.url });
 });
 
 //onload

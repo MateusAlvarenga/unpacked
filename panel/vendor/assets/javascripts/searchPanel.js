@@ -22,8 +22,8 @@ function createAndPopulateList(listID, parentEl) {
 }
 
 // Function to add an item to the list
-function addItem(person, listID) {
-    const list = document.getElementById(listID);
+function addItem(item) {
+    const list = document.getElementById('formList');
     if (!list) {
         console.error('List not found: ' + listID);
         return;
@@ -34,8 +34,8 @@ function addItem(person, listID) {
         .append(
             $dom('a')
                 .addClass('form__link')
-                .attr('href', person.href)
-                .text(person.name)
+                .attr('href', item.href)
+                .text(item.name)
         )
         .appendTo(list);
 }
@@ -47,7 +47,8 @@ function filterDataWithFluentDom(event) {
 
     Array.from(list.children).forEach(li => {
         const dataVal = li.textContent.toLowerCase();
-        if (dataVal.startsWith(val)) {
+        //if (dataVal.startsWith(val)) {
+        if (dataVal.includes(val)) {
             li.classList.remove('form__item_hidden');
         } else {
             li.classList.add('form__item_hidden');
