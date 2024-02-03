@@ -61,6 +61,7 @@ button {
   background-color: var(--gray-2);
   border: 1px solid var(--gray-5);
   margin-top: -1px;
+  overflow:auto;
 }
 
 .form__item:hover {
@@ -76,6 +77,7 @@ button {
   display: block;
   padding: var(--size-3);
   text-decoration: none;
+  max-width: min-content;
 }
 
 .search-box {
