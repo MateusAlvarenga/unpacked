@@ -139,7 +139,8 @@ function create_inspector(conf) {
                 .append($dom("button").id("send-button").text("Re-send"))
         )
         .append(
-            $dom("button").id("filter-button").text("Filter")
+            $dom("button").id("filter-button").text("Filter"),
+            $dom("button").id("filter-button2").text("Filter")
         )
         .append(
             $dom("div").id("result")
@@ -153,11 +154,16 @@ function create_inspector(conf) {
         select_method: inspector.element.querySelector("#method"),
         button_send: inspector.element.querySelector("#send-button"),
         button_filter: inspector.element.querySelector("#filter-button"),
+        button_filter2: inspector.element.querySelector("#filter-button2"),
         result: inspector.element.querySelector("#result")
     }
 
     $dom(elements.button_filter).on('click', () => {
-        filter(elements.textarea_request, elements.result)
+        filter(elements.textarea_request, elements.result, "request")
+    });
+
+    $dom(elements.button_filter2).on('click', () => {
+        filter(elements.textarea_response, elements.result, "response")
     });
 
     return [
@@ -201,10 +207,10 @@ function filterDataWithFluentDom(event) {
     });
 }
 
-function filterResult(result, path){
+function filterResult(result, path, type){
 
     const div = $dom('div').append(
-        $dom('p').text(path),
+        $dom('p').text(type + " " + path),
         $dom('textarea').val(beatify_json(result) || ""),
         $dom('button').text("delete").on('click', function(){
             $dom(this.parentElement).delete();
@@ -215,12 +221,11 @@ function filterResult(result, path){
 
 }
 
-
 function beatify_json(json) {
     return JSON.stringify(json, null, 4);
 }
 
-function filter(textarea, result_div) {
+function filter(textarea, result_div, type) {
     if(!textarea.value || textarea.value.trim() === "") return;
 
     const json = JSON.parse(textarea.value);
@@ -236,5 +241,5 @@ function filter(textarea, result_div) {
     console.log(result);
   //  $dom(textarea).val(beatify_json(result) || "");
 
-    $dom(result_div).append(filterResult(result, path));
+    $dom(result_div).append(filterResult(result, path,type));
 }
