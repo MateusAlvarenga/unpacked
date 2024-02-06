@@ -20,8 +20,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const app = $dom(gI('app'));
     const [inspector_panel, inspect] = create_inspector();
-    _inspect = inspect;
     const search_panel = searchPanel();
+    _inspect = inspect;
 
     const div_panel = $dom('div').addClass('panel');
     const div_requests = $dom('div').addClass('requests');

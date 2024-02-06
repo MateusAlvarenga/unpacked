@@ -61,8 +61,8 @@ function inpect(request, inspector, elements) {
 
     $dom(elements.select_method).val(request.request.method);
     $dom(elements.input_url).val(request.request.url);
-    $dom(elements.textarea_request).text(beatify_json(request.request.postData) || "");
-    $dom(elements.textarea_response).text(beatify_json(request.response.content.text) || "");
+    $dom(elements.textarea_request).val(beatify_json(request.request.postData) || "");
+    $dom(elements.textarea_response).val(beatify_json(request.response.content.text) || "");
 
     elements.button_send.addEventListener('click', async () => {
 

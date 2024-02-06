@@ -37,7 +37,7 @@ button {
 .main {
   display: grid;
   place-items: start;
-  padding: var(--size-4);
+  font-size: 9;
 }
 
 .main__form {
