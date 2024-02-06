@@ -127,6 +127,9 @@ function create_inspector(conf) {
                 .append($dom("input").attr("type", "text").attr("placeholder", "url"))
         )
         .append(
+            $dom("button").id("filter-button").text("Filter")
+        )
+        .append(
             $dom("div")
                 .append($dom("textarea").attr("placeholder", "request body").id("request_body"))
         )
@@ -136,7 +139,7 @@ function create_inspector(conf) {
         )
         .append(
             $dom("div")
-                .append($dom("button").text("Re-send"))
+                .append($dom("button").id("send-button").text("Re-send"))
         );
 
 
@@ -145,8 +148,13 @@ function create_inspector(conf) {
         textarea_request: inspector.element.querySelector("#request_body"),
         textarea_response: inspector.element.querySelector("#response_body"),
         select_method: inspector.element.querySelector("#method"),
-        button_send: inspector.element.querySelector("button")
+        button_send: inspector.element.querySelector("#send-button"),
+        button_filter: inspector.element.querySelector("#filter-button")
     }
+
+    $dom(elements.button_filter).on('click', () => {
+        filter(elements.textarea_request)
+    });
 
     return [
         inspector,
@@ -192,4 +200,14 @@ function filterDataWithFluentDom(event) {
 
 function beatify_json(json) {
     return JSON.stringify(json, null, 4);
+}
+
+function filter(textarea) {
+    if(!textarea.value || textarea.value.trim() === "") return;
+
+    const json = JSON.parse(textarea.value);
+    const path = prompt("Enter jsonPath expression:");
+    const result = jsonpath.query(json, path);
+    console.log(result);
+    $dom(textarea).val(beatify_json(result) || "");
 }
