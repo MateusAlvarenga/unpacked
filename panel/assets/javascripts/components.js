@@ -10,6 +10,7 @@ function searchPanel() {
                         .id('mainForm')
                         .addClass('form')
                         .addClass('main__form')
+                        .addClass('pure-form')
                         .attr('action', 'javascript:void(0);')
                         .attr('method', 'GET')
                         .append(
@@ -20,13 +21,7 @@ function searchPanel() {
                                     $dom('span')
                                         .addClass('sr-only')
                                         .text('Search')
-                                )
-                                .append(
-                                    $dom('i')
-                                        .addClass('fa-search')
-                                        .addClass('fa-solid')
-                                        .addClass('search-box__icon')
-                                )
+                                )                                
                                 .append(
                                     $dom('input')
                                         .id('search')
@@ -136,17 +131,16 @@ function create_inspector(conf) {
         )
         .append(
             $dom("div")
-                .append($dom("button").id("send-button").text("Re-send"))
+                .append($dom("button").id("send-button").type("button").text("Re-send").addClass("pure-button","pure-button-primary"))
         )
         .append(
-            $dom("button").id("filter-button").text("Filter"),
-            $dom("button").id("filter-button2").text("Filter")
+            $dom("button").id("filter-button").type("button").text("Filter").addClass("pure-button","pure-button-primary"),
+            $dom("button").id("filter-button2").type("button").text("Filter").addClass("pure-button","pure-button-primary")
         )
         .append(
             $dom("div").id("result")
         );
-
-
+ 
     const elements = {
         input_url: inspector.element.querySelector("input"),
         textarea_request: inspector.element.querySelector("#request_body"),
@@ -167,7 +161,9 @@ function create_inspector(conf) {
     });
 
     return [
-        inspector,
+        $dom("div").append(
+            $dom("form").addClass("pure-form")
+                .append($dom("fieldset").append(inspector))),
         (request) => { inpect(request, inspector, elements) }
     ]
 }
@@ -212,7 +208,7 @@ function filterResult(result, path, type){
     const div = $dom('div').append(
         $dom('p').text(type + " " + path),
         $dom('textarea').val(beatify_json(result) || ""),
-        $dom('button').text("delete").on('click', function(){
+        $dom('button').addClass("pure-button","pure-button-primary").type("button").text("delete").on('click', function(){
             $dom(this.parentElement).delete();
         })
     );

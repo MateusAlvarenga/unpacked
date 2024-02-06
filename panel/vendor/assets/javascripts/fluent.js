@@ -73,6 +73,10 @@
                 this.element.title = title;
                 return this;
             },
+            type: function (type) {
+                this.element.type = type;
+                return this;
+            },
             delete: function () {
                 this.element.remove();
             },
