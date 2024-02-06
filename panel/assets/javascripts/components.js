@@ -125,10 +125,7 @@ function create_inspector(conf) {
         .append(
             $dom("div")
                 .append($dom("input").attr("type", "text").attr("placeholder", "url"))
-        )
-        .append(
-            $dom("button").id("filter-button").text("Filter")
-        )
+        )       
         .append(
             $dom("div")
                 .append($dom("textarea").attr("placeholder", "request body").id("request_body"))
@@ -140,6 +137,12 @@ function create_inspector(conf) {
         .append(
             $dom("div")
                 .append($dom("button").id("send-button").text("Re-send"))
+        )
+        .append(
+            $dom("button").id("filter-button").text("Filter")
+        )
+        .append(
+            $dom("div").id("result")
         );
 
 
@@ -149,11 +152,12 @@ function create_inspector(conf) {
         textarea_response: inspector.element.querySelector("#response_body"),
         select_method: inspector.element.querySelector("#method"),
         button_send: inspector.element.querySelector("#send-button"),
-        button_filter: inspector.element.querySelector("#filter-button")
+        button_filter: inspector.element.querySelector("#filter-button"),
+        result: inspector.element.querySelector("#result")
     }
 
     $dom(elements.button_filter).on('click', () => {
-        filter(elements.textarea_request)
+        filter(elements.textarea_request, elements.result)
     });
 
     return [
@@ -197,17 +201,40 @@ function filterDataWithFluentDom(event) {
     });
 }
 
+function filterResult(result, path){
+
+    const div = $dom('div').append(
+        $dom('p').text(path),
+        $dom('textarea').val(beatify_json(result) || ""),
+        $dom('button').text("delete").on('click', function(){
+            $dom(this.parentElement).delete();
+        })
+    );
+
+    return div;
+
+}
+
 
 function beatify_json(json) {
     return JSON.stringify(json, null, 4);
 }
 
-function filter(textarea) {
+function filter(textarea, result_div) {
     if(!textarea.value || textarea.value.trim() === "") return;
 
     const json = JSON.parse(textarea.value);
     const path = prompt("Enter jsonPath expression:");
-    const result = jsonpath.query(json, path);
+    let result = null;
+    try{
+          result = jsonpath.query(json, path);
+    }catch(e){
+        console.error(e);
+        alert("Invalid jsonPath expression");
+        return;
+    }
     console.log(result);
-    $dom(textarea).val(beatify_json(result) || "");
+  //  $dom(textarea).val(beatify_json(result) || "");
+
+    $dom(result_div).append(filterResult(result, path));
 }
