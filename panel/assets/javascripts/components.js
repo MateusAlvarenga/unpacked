@@ -21,7 +21,7 @@ function searchPanel() {
                                     $dom('span')
                                         .addClass('sr-only')
                                         .text('Search')
-                                )                                
+                                )
                                 .append(
                                     $dom('input')
                                         .id('search')
@@ -107,58 +107,84 @@ function create_inspector(conf) {
     inspector.append($dom('h2').text("Inspector"));
 
     inspector
-        .append(
-            $dom("div")
-                .append($dom("lable").text("Method"))
-                .append($dom("select").id("method").append(
-                    $dom("option").val("GET").text("GET"),
-                    $dom("option").val("POST").text("POST"),
-                    $dom("option").val("PUT").text("PUT"),
-                    $dom("option").val("DELETE").text("DELETE"),
-                ))
-        )
-        .append(
-            $dom("div")
-                .append($dom("input").attr("type", "text").attr("placeholder", "url"))
-        )       
-        .append(
-            $dom("div")
-                .append($dom("textarea").attr("placeholder", "request body").id("request_body"))
-        )
-        .append(
-            $dom("div")
-                .append($dom("textarea").attr("placeholder", "Response body").id("response_body"))
-        )
-        .append(
-            $dom("div")
-                .append($dom("button").id("send-button").type("button").text("Re-send").addClass("pure-button","pure-button-primary"))
-        )
-        .append(
-            $dom("button").id("filter-button").type("button").text("Filter").addClass("pure-button","pure-button-primary"),
-            $dom("button").id("filter-button2").type("button").text("Filter").addClass("pure-button","pure-button-primary")
-        )
-        .append(
-            $dom("div").id("result")
-        );
- 
+        .append($dom("div").append(
+            $dom("form").addClass("pure-form")
+                .append($dom("fieldset")
+                    .append(
+                        $dom("div")
+                            .append($dom("lable").text("Method"))
+                            .append($dom("select").id("method").append(
+                                $dom("option").val("GET").text("GET"),
+                                $dom("option").val("POST").text("POST"),
+                                $dom("option").val("PUT").text("PUT"),
+                                $dom("option").val("DELETE").text("DELETE"),
+                            ))
+                    )
+                    .append(
+                        $dom("div")
+                            .append($dom("input").attr("type", "text").attr("placeholder", "url"))
+                    )
+                    .append(
+                        $dom("button").id("button_copy_request").type("button").addClass("pure-button", "pure-button-primary")
+                            .append(fa("fa-solid", "fa-copy"))
+                    )
+                    .append(
+                        $dom("button").id("button_filter_request").type("button").addClass("pure-button", "pure-button-primary")
+                            .append(fa("fa-solid", "fa-filter"))
+                    )
+                    .append(
+                        $dom("div")
+                            .append($dom("textarea").attr("placeholder", "request body").id("request_body"))
+                    )
+                    .append(
+                        $dom("button").id("button_copy_response").type("button").addClass("pure-button", "pure-button-primary")
+                            .append(fa("fa-solid", "fa-copy"))
+                    )
+                    .append(
+                        $dom("button").id("button_filter_response").type("button").addClass("pure-button", "pure-button-primary")
+                            .append(fa("fa-solid", "fa-filter"))
+                    )
+                    .append(
+                        $dom("div")
+                            .append($dom("textarea").attr("placeholder", "Response body").id("response_body"))
+                    )
+                    .append(
+                        $dom("div")
+                            .append($dom("button").id("send-button").type("button").text("Re-send").addClass("pure-button", "pure-button-primary"))
+                    )
+                    .append(
+                        $dom("div").id("result")
+                    ))));
+
     const elements = {
         input_url: inspector.element.querySelector("input"),
         textarea_request: inspector.element.querySelector("#request_body"),
         textarea_response: inspector.element.querySelector("#response_body"),
         select_method: inspector.element.querySelector("#method"),
         button_send: inspector.element.querySelector("#send-button"),
-        button_filter: inspector.element.querySelector("#filter-button"),
-        button_filter2: inspector.element.querySelector("#filter-button2"),
-        result: inspector.element.querySelector("#result")
+        button_filter_request: inspector.element.querySelector("#button_filter_request"),
+        button_filter_response: inspector.element.querySelector("#button_filter_response"),
+        result: inspector.element.querySelector("#result"),
+        button_copy_request: inspector.element.querySelector("#button_copy_request"),
+        button_copy_response: inspector.element.querySelector("#button_copy_response")
     }
 
-    $dom(elements.button_filter).on('click', () => {
+    $dom(elements.button_filter_request).on('click', () => {
         filter(elements.textarea_request, elements.result, "request")
     });
 
-    $dom(elements.button_filter2).on('click', () => {
+    $dom(elements.button_filter_response).on('click', () => {
         filter(elements.textarea_response, elements.result, "response")
     });
+
+    $dom(elements.button_copy_request).on('click', () => {
+        copyText(elements.textarea_request);
+    });
+
+    $dom(elements.button_copy_response).on('click', () => {
+        copyText(elements.textarea_response);
+    });
+
 
     return [
         $dom("div").append(
@@ -203,14 +229,20 @@ function filterDataWithFluentDom(event) {
     });
 }
 
-function filterResult(result, path, type){
+function filterResult(result, path, type) {
 
     const div = $dom('div').append(
         $dom('p').text(type + " " + path),
         $dom('textarea').val(beatify_json(result) || ""),
-        $dom('button').addClass("pure-button","pure-button-primary").type("button").text("delete").on('click', function(){
+
+        $dom('button').addClass("pure-button", "pure-button-primary").type("button").on('click', function () {
             $dom(this.parentElement).delete();
-        })
+        }).append(fa("fa-solid", "fa-trash")),
+
+        $dom('button').addClass("pure-button", "pure-button-primary").type("button").on('click', function () {
+            copyText(this.parentElement.querySelector("textarea"));
+        }).append(fa("fa-solid", "fa-copy"))
+
     );
 
     return div;
@@ -222,20 +254,36 @@ function beatify_json(json) {
 }
 
 function filter(textarea, result_div, type) {
-    if(!textarea.value || textarea.value.trim() === "") return;
+    if (!textarea.value || textarea.value.trim() === "") return;
 
     const json = JSON.parse(textarea.value);
     const path = prompt("Enter jsonPath expression:");
     let result = null;
-    try{
-          result = jsonpath.query(json, path);
-    }catch(e){
+    try {
+        result = jsonpath.query(json, path);
+    } catch (e) {
         console.error(e);
         alert("Invalid jsonPath expression");
         return;
     }
     console.log(result);
-  //  $dom(textarea).val(beatify_json(result) || "");
+    //  $dom(textarea).val(beatify_json(result) || "");
 
-    $dom(result_div).append(filterResult(result, path,type));
+    $dom(result_div).append(filterResult(result, path, type));
+}
+
+function fa(...clazz) {
+
+    let dom = $dom("i");
+
+    clazz.forEach(element => {
+        dom.addClass(element);
+    });
+
+    return dom;
+}
+
+function copyText(textarea) {
+    textarea.select();
+    document.execCommand('copy');
 }
