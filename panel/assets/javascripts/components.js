@@ -131,9 +131,7 @@ function inspectorPanel(conf) {
 
 
     return [
-        $dom("div").append(
-            $dom("form").addClass("pure-form")
-                .append($dom("fieldset").append(inspector))),
+        inspector,
         (request) => { inpect(request, inspector, elements) }
     ]
 }
@@ -169,7 +167,6 @@ function jsonPathfilter(textarea, result_div, type) {
     try {
         result = jsonpath.query(json, path);
     } catch (e) {
-        console.error(e);
         alert("Invalid jsonPath expression");
         return;
     }
@@ -197,7 +194,7 @@ function inpect(request, inspector, elements) {
 
     elements.button_send.addEventListener('click', async () => {
 
-        const response_body = await reSendRequest(request);
+        const response_body = await reSendRequest(request, elements);
 
         $dom(elements.textarea_response).text(beatify_json(response_body) || "");
 
@@ -258,7 +255,7 @@ function copyText(textarea) {
     document.execCommand('copy');
 }
 
-async function reSendRequest(request) {
+async function reSendRequest(request, elements) {
     const url = request.request.url;
     const method = request.request.method;
     const body = request.request.postData;
@@ -278,10 +275,10 @@ async function reSendRequest(request) {
     headers['Cookie'] = cookieString;
 
     const options = {
-        method,
-        headers,
-        body,
-        credentials: 'include' // or 'same-origin'  or 'omit'
+        "method": method,
+        "headers": headers,
+        "body": body,
+        "cache": "no-cache"
     }
 
     try {

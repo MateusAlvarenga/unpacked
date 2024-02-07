@@ -66,6 +66,15 @@
                 return this;
             },
             on: function (event, callback) {
+                //remove all previous event listeners and add the new one
+                const clone = this.element.cloneNode(true);
+                this.element = clone;
+                if (this.element.parentNode)
+                    this.element.parentNode.replaceChild(clone, this.element);
+                this.element.addEventListener(event, callback);
+                return this;
+            },
+            addEventListener: function (event, callback) {
                 this.element.addEventListener(event, callback);
                 return this;
             },
