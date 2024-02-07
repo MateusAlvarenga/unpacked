@@ -19,7 +19,7 @@ chrome.devtools.network.onRequestFinished.addListener(function (request) {
 document.addEventListener('DOMContentLoaded', function () {
 
     const app = $dom(gI('app'));
-    const [inspector_panel, inspect] = create_inspector();
+    const [inspector_panel, inspect] = inspectorPanel();
     const search_panel = searchPanel();
     _inspect = inspect;
 

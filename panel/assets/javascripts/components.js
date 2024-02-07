@@ -1,3 +1,4 @@
+// Componets
 function searchPanel() {
     const dom = $dom('div')
         .addClass('page')
@@ -29,7 +30,7 @@ function searchPanel() {
                                         .attr('type', 'text')
                                         .attr('name', 'search')
                                         .attr('placeholder', 'Search for names..')
-                                        .on('keyup', filterDataWithFluentDom)
+                                        .on('keyup', filterRequests)
                                 )
                         ).append(
                             $dom('ul')
@@ -43,64 +44,7 @@ function searchPanel() {
     return dom;
 }
 
-function inpect(request, inspector, elements) {
-    console.log(request);
-    console.log(inspector.element);
-    console.log(elements);
-
-
-    $dom(elements.select_method).val("");
-    $dom(elements.input_url).val("");
-    $dom(elements.textarea_request).text("");
-    $dom(elements.textarea_response).text("");
-
-    $dom(elements.select_method).val(request.request.method);
-    $dom(elements.input_url).val(request.request.url);
-    $dom(elements.textarea_request).val(beatify_json(request.request.postData) || "");
-    $dom(elements.textarea_response).val(beatify_json(request.response.content.text) || "");
-
-    elements.button_send.addEventListener('click', async () => {
-
-        const url = request.request.url;
-        const method = request.request.method;
-        const body = request.request.postData;
-        const cookies = request.request.cookies;
-
-        const cookieString = cookies.map(cookie => `${cookie.name}=${cookie.value}`).join('; ');
-
-        const headers = request.request.headers.reduce((acc, cur) => {
-            if (/^[a-z0-9!#$%&'*+.^_`|~-]+$/i.test(cur.name)) {
-                acc[cur.name] = cur.value;
-            } else {
-                console.warn(`Invalid header name: ${cur.name}`);
-            }
-            return acc;
-        }, {});
-
-        headers['Cookie'] = cookieString;
-
-        const options = {
-            method,
-            headers,
-            body,
-            credentials: 'include' // or 'same-origin'  or 'omit'
-        }
-
-        try {
-            const response = await fetch(url, options);
-            const response_body = await response.text();
-            console.log(response_body);
-        } catch (error) {
-            console.error(`Failed to fetch: ${error.message}`);
-        }
-
-
-        $dom(elements.textarea_response).text(beatify_json(response_body) || "");
-
-    });
-}
-
-function create_inspector(conf) {
+function inspectorPanel(conf) {
 
     const inspector = $dom('div').addClass('inspector');
 
@@ -170,11 +114,11 @@ function create_inspector(conf) {
     }
 
     $dom(elements.button_filter_request).on('click', () => {
-        filter(elements.textarea_request, elements.result, "request")
+        jsonPathfilter(elements.textarea_request, elements.result, "request")
     });
 
     $dom(elements.button_filter_response).on('click', () => {
-        filter(elements.textarea_response, elements.result, "response")
+        jsonPathfilter(elements.textarea_response, elements.result, "response")
     });
 
     $dom(elements.button_copy_request).on('click', () => {
@@ -192,6 +136,72 @@ function create_inspector(conf) {
                 .append($dom("fieldset").append(inspector))),
         (request) => { inpect(request, inspector, elements) }
     ]
+}
+
+function filterResultPanel(result, path, type) {
+
+    const div = $dom('div').append(
+        $dom('p').text(type + " " + path),
+        $dom('textarea').val(beatify_json(result) || ""),
+
+        $dom('button').addClass("pure-button", "pure-button-primary").type("button").on('click', function () {
+            $dom(this.parentElement).delete();
+        }).append(fa("fa-solid", "fa-trash")),
+
+        $dom('button').addClass("pure-button", "pure-button-primary").type("button").on('click', function () {
+            copyText(this.parentElement.querySelector("textarea"));
+        }).append(fa("fa-solid", "fa-copy"))
+
+    );
+
+    return div;
+
+}
+
+// ============================================================================================================
+
+function jsonPathfilter(textarea, result_div, type) {
+    if (!textarea.value || textarea.value.trim() === "") return;
+
+    const json = JSON.parse(textarea.value);
+    const path = prompt("Enter jsonPath expression:");
+    let result = null;
+    try {
+        result = jsonpath.query(json, path);
+    } catch (e) {
+        console.error(e);
+        alert("Invalid jsonPath expression");
+        return;
+    }
+    console.log(result);
+    //  $dom(textarea).val(beatify_json(result) || "");
+
+    $dom(result_div).append(filterResultPanel(result, path, type));
+}
+
+function inpect(request, inspector, elements) {
+    console.log(request);
+    console.log(inspector.element);
+    console.log(elements);
+
+
+    $dom(elements.select_method).val("");
+    $dom(elements.input_url).val("");
+    $dom(elements.textarea_request).text("");
+    $dom(elements.textarea_response).text("");
+
+    $dom(elements.select_method).val(request.request.method);
+    $dom(elements.input_url).val(request.request.url);
+    $dom(elements.textarea_request).val(beatify_json(request.request.postData) || "");
+    $dom(elements.textarea_response).val(beatify_json(request.response.content.text) || "");
+
+    elements.button_send.addEventListener('click', async () => {
+
+        const response_body = await reSendRequest(request);
+
+        $dom(elements.textarea_response).text(beatify_json(response_body) || "");
+
+    });
 }
 
 // Function to add an item to the list
@@ -214,7 +224,7 @@ function addItem(request) {
 }
 
 // Function to filter the list items based on user input
-function filterDataWithFluentDom(event) {
+function filterRequests(event) {
     const val = event.target.value.toLowerCase();
     const list = document.getElementById('formList');
 
@@ -229,51 +239,11 @@ function filterDataWithFluentDom(event) {
     });
 }
 
-function filterResult(result, path, type) {
-
-    const div = $dom('div').append(
-        $dom('p').text(type + " " + path),
-        $dom('textarea').val(beatify_json(result) || ""),
-
-        $dom('button').addClass("pure-button", "pure-button-primary").type("button").on('click', function () {
-            $dom(this.parentElement).delete();
-        }).append(fa("fa-solid", "fa-trash")),
-
-        $dom('button').addClass("pure-button", "pure-button-primary").type("button").on('click', function () {
-            copyText(this.parentElement.querySelector("textarea"));
-        }).append(fa("fa-solid", "fa-copy"))
-
-    );
-
-    return div;
-
-}
-
 function beatify_json(json) {
     return JSON.stringify(json, null, 4);
 }
 
-function filter(textarea, result_div, type) {
-    if (!textarea.value || textarea.value.trim() === "") return;
-
-    const json = JSON.parse(textarea.value);
-    const path = prompt("Enter jsonPath expression:");
-    let result = null;
-    try {
-        result = jsonpath.query(json, path);
-    } catch (e) {
-        console.error(e);
-        alert("Invalid jsonPath expression");
-        return;
-    }
-    console.log(result);
-    //  $dom(textarea).val(beatify_json(result) || "");
-
-    $dom(result_div).append(filterResult(result, path, type));
-}
-
 function fa(...clazz) {
-
     let dom = $dom("i");
 
     clazz.forEach(element => {
@@ -286,4 +256,41 @@ function fa(...clazz) {
 function copyText(textarea) {
     textarea.select();
     document.execCommand('copy');
+}
+
+async function reSendRequest(request) {
+    const url = request.request.url;
+    const method = request.request.method;
+    const body = request.request.postData;
+    const cookies = request.request.cookies;
+
+    const cookieString = cookies.map(cookie => `${cookie.name}=${cookie.value}`).join('; ');
+
+    const headers = request.request.headers.reduce((acc, cur) => {
+        if (/^[a-z0-9!#$%&'*+.^_`|~-]+$/i.test(cur.name)) {
+            acc[cur.name] = cur.value;
+        } else {
+            console.warn(`Invalid header name: ${cur.name}`);
+        }
+        return acc;
+    }, {});
+
+    headers['Cookie'] = cookieString;
+
+    const options = {
+        method,
+        headers,
+        body,
+        credentials: 'include' // or 'same-origin'  or 'omit'
+    }
+
+    try {
+        const response = await fetch(url, options);
+        const response_body = await response.text();
+        console.log(response_body);
+    } catch (error) {
+        console.error(`Failed to fetch: ${error.message}`);
+    }
+
+    return response_body;
 }
