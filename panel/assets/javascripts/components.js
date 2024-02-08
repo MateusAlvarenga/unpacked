@@ -213,10 +213,20 @@ function inpect(request, inspector, elements) {
 }
 
 // Function to add an item to the list
-function addItem(request) {
+function addItem(request, isLoaded = false) {
     const list = document.getElementById('formList');
     const url = request.request.url;
     const method = request.request.method;
+    const deleteButton = isLoaded ? $dom('div').append(
+        $dom('button')
+            .text('delete')
+            .append(fa("fa-solid", "fa-trash"))
+            .onClick(function () {
+                deleteRequest(request);
+                //updateList();
+            })
+    ) : $dom('div');
+
 
     $dom('li')
         .addClass('form__item')
@@ -228,6 +238,15 @@ function addItem(request) {
                     _inspect(request)
                 })
         )
+        .append(
+            $dom('button')
+                .text('save')
+                .append(fa("fa-solid", "fa-save"))
+                .onClick(function () {
+                    saveRequestToList(request);
+                    //updateList();
+                })
+        ).append(deleteButton)
         .prependTo(list);
 }
 
