@@ -267,12 +267,13 @@ function copyText(textarea) {
 }
 
 async function reSendRequest(request, elements) {
+
+
     const url = request.request.url;
     const method = request.request.method;
-    const body = request.request.postData;
     const cookies = request.request.cookies;
-
     const cookieString = cookies.map(cookie => `${cookie.name}=${cookie.value}`).join('; ');
+    let body = "";
 
     const headers = request.request.headers.reduce((acc, cur) => {
         if (/^[a-z0-9!#$%&'*+.^_`|~-]+$/i.test(cur.name)) {
@@ -282,6 +283,17 @@ async function reSendRequest(request, elements) {
         }
         return acc;
     }, {});
+
+    if (elements.textarea_request.value && elements.textarea_request.value.trim() !== "") {
+
+        try {
+            body = JSON.stringify(JSON.parse(elements.textarea_request.value));
+        } catch (error) {
+            console.error(`Failed to parse request body: ${error.message}`);
+            return;
+        }
+    }
+
 
     headers['Cookie'] = cookieString;
 
