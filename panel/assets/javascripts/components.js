@@ -132,6 +132,7 @@ function inspectorPanel(conf) {
 
     return [
         inspector,
+        elements,
         (request) => { inpect(request, inspector, elements) }
     ]
 }
@@ -192,13 +193,23 @@ function inpect(request, inspector, elements) {
     $dom(elements.textarea_request).val(beatify_json(request.request.postData) || "");
     $dom(elements.textarea_response).val(beatify_json(request.response.content.text) || "");
 
-    elements.button_send.addEventListener('click', async () => {
+    // Replace the button with a clone to remove the event listener
+    const clone = elements.button_send.cloneNode(true);
+
+    clone.addEventListener('click', async () => {
 
         const response_body = await reSendRequest(request, elements);
 
         $dom(elements.textarea_response).text(beatify_json(response_body) || "");
 
     });
+
+    // i did not find a way to remove the event listener so i just replace the button with a clone
+    // not elegant but it works
+    const parent = $dom(gI("send-button")).parent();
+    const send_button = $dom(gI("send-button"));
+    send_button.delete();
+    parent.append($dom(clone));
 }
 
 // Function to add an item to the list

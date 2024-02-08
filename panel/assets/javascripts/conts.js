@@ -11,3 +11,4 @@ Console.Type = {
 };
 
 var _inspect = null;
+var _elements = null;
