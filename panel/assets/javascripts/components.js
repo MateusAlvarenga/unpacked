@@ -213,7 +213,7 @@ function addItem(request) {
             $dom('a')
                 .addClass('form__link')
                 .text(`${method} :  ${url}`)
-                .on('click', function () {
+                .onClick(function () {
                     _inspect(request)
                 })
         )

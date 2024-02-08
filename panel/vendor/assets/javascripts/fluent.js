@@ -65,13 +65,11 @@
                 this.element.value = value;
                 return this;
             },
-            on: function (event, callback) {
-                //remove all previous event listeners and add the new one
-                this.element.removeAllEventListeners();
-                this.element.addEventListener(event, callback);
+            onClick: function (callback) {
+                this.element.onclick = callback;
                 return this;
             },
-            addEventListener: function (event, callback) {
+            on: function (event, callback) {
                 this.element.addEventListener(event, callback);
                 return this;
             },
