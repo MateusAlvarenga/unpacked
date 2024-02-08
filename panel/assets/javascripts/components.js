@@ -217,16 +217,6 @@ function addItem(request, isLoaded = false) {
     const list = document.getElementById('formList');
     const url = request.request.url;
     const method = request.request.method;
-    const deleteButton = isLoaded ? $dom('div').append(
-        $dom('button')
-            .text('delete')
-            .append(fa("fa-solid", "fa-trash"))
-            .onClick(function () {
-                deleteRequest(request);
-                //updateList();
-            })
-    ) : $dom('div');
-
 
     $dom('li')
         .addClass('form__item')
@@ -241,12 +231,28 @@ function addItem(request, isLoaded = false) {
         .append(
             $dom('button')
                 .text('save')
+                .addClass("button-save")
+                .addClass(isLoaded ? "hidden" : "visible")
                 .append(fa("fa-solid", "fa-save"))
                 .onClick(function () {
                     saveRequestToList(request);
-                    //updateList();
+
+                    $dom(this).addClass("hidden");
+                    $dom(this.parentElement.querySelector(".button-delete")).removeClass("hidden");
+
                 })
-        ).append(deleteButton)
+        ).append($dom('button')
+            .text('delete')
+            .append(fa("fa-solid", "fa-trash"))
+            .addClass("button-delete")
+            .addClass(isLoaded ? "visible" : "hidden")
+            .onClick(function () {
+                deleteRequest(request);
+
+                $dom(this).addClass("hidden");
+                $dom(this.parentElement.querySelector(".button-save")).removeClass("hidden");
+
+            }))
         .prependTo(list);
 }
 
