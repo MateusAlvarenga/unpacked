@@ -52,7 +52,7 @@ function inspectorPanel(conf) {
 
     inspector
         .append($dom("div").append(
-            $dom("form").addClass("pure-form")
+            $dom("form").addClass("pure-form", "inspector-form")
                 .append($dom("fieldset")
                     .append(
                         $dom("div")
@@ -69,11 +69,11 @@ function inspectorPanel(conf) {
                             .append($dom("input").attr("type", "text").attr("placeholder", "url"))
                     )
                     .append(
-                        $dom("button").id("button_copy_request").type("button").addClass("pure-button", "pure-button-primary")
+                        $dom("button").id("button_copy_request").type("button").addClass("pure-button", "pure-button-primary", "_50width")
                             .append(fa("fa-solid", "fa-copy"))
                     )
                     .append(
-                        $dom("button").id("button_filter_request").type("button").addClass("pure-button", "pure-button-primary")
+                        $dom("button").id("button_filter_request").type("button").addClass("pure-button", "pure-button-primary", "_50width")
                             .append(fa("fa-solid", "fa-filter"))
                     )
                     .append(
@@ -81,11 +81,11 @@ function inspectorPanel(conf) {
                             .append($dom("textarea").attr("placeholder", "request body").id("request_body"))
                     )
                     .append(
-                        $dom("button").id("button_copy_response").type("button").addClass("pure-button", "pure-button-primary")
+                        $dom("button").id("button_copy_response").type("button").addClass("pure-button", "pure-button-primary", "_50width")
                             .append(fa("fa-solid", "fa-copy"))
                     )
                     .append(
-                        $dom("button").id("button_filter_response").type("button").addClass("pure-button", "pure-button-primary")
+                        $dom("button").id("button_filter_response").type("button").addClass("pure-button", "pure-button-primary", "_50width")
                             .append(fa("fa-solid", "fa-filter"))
                     )
                     .append(

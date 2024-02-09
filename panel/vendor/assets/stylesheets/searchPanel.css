@@ -113,3 +113,7 @@ button {
   margin-left: 0.5em;
   z-index: var(--layer-2);
 }
+
+._50width{
+  width: 50%;
+}
